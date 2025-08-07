@@ -27,22 +27,16 @@ EXCEL_GRAMMAR = r"""
     // Уровень выражений: сравнения, арифметика и т. д.
     ?start: expr
 
-    ?expr: expr ">" term    -> gt
-         | expr "<" term    -> lt
-         | expr ">=" term   -> ge
-         | expr "<=" term   -> le
-         | expr "=" term    -> eq
-         | expr "<>" term   -> ne
+    // Изменяем порядок: сначала операторы умножения/деления, затем сложение/вычитание
+    ?expr: term
          | expr "+" term    -> add
          | expr "-" term    -> sub
-         | term
 
-    ?term: term "*" factor -> mul
+    ?term: factor
+         | term "*" factor -> mul
          | term "/" factor -> div
-         | factor
 
     ?factor: cell_ref
-           | function_call
            | NUMBER         -> number
            | "(" expr ")"
 
