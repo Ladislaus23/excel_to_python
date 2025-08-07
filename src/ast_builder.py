@@ -1,47 +1,54 @@
-#ast_builder.py
-
 from lark import Lark, Transformer, v_args
 from src.evaluator import ConstantNode, CellNode, FunctionNode, BinaryOpNode, FormulaNode
 from lark.exceptions import UnexpectedInput
 
-
-
 # Определение грамматики для Excel-подобных формул
+# Грамматика будет поддерживать операторы, ссылки на ячейки, функции и арифметику
+
 EXCEL_GRAMMAR = r"""
-    // Однострочные C++-комментарии
+    // Комментарии начинаются с '//' и продолжаются до конца строки
     COMMENT: /\/\/[^\n]*/
     %ignore COMMENT
 
     // --- Терминалы ---
-    // Адрес ячейки или диапазона: A1, B2:C3 и т.п.
-    CELL:       /[A-Za-z]+\d+(:[A-Za-z]+\d+)?/
-    // Имя листа: Sheet1, My_Sheet и т.п.
-    SHEET_NAME: /[A-Za-z_]\w+/
+    // Для чисел, строк и переменных
+    CELL:       /[A-Za-z]+\d+(:[A-Za-z]+\d+)?/   // Ячейки, например A1 или B2:C3
+    SHEET_NAME: /[A-Za-z_]\w+/                    // Названия листов, например Sheet1 или My_Sheet
 
-    // Импортим общие токены
+    // Импортируем стандартные токены
     %import common.CNAME      -> NAME
     %import common.NUMBER     -> NUMBER
     %import common.WS_INLINE
-    %ignore WS_INLINE
+    %ignore WS_INLINE          // Игнорируем пробелы и табуляцию
 
-    // Уровень выражений: сравнения, арифметика и т. д.
+    // Основное правило для формул
     ?start: expr
 
-    // Изменяем порядок: сначала операторы умножения/деления, затем сложение/вычитание
-    ?expr: term
-         | expr "+" term    -> add
+    // Операции с термами, включая арифметику и сложение
+    ?expr: expr "+" term    -> add
          | expr "-" term    -> sub
+         | term
 
-    ?term: factor
-         | term "*" factor -> mul
-         | term "/" factor -> div
+    // Операции с термами умножения и деления
+    ?term: factor "*" factor -> mul
+         | factor "/" factor -> div
+         | factor
 
-    ?factor: cell_ref
-           | NUMBER         -> number
+    // Факторы: это могут быть ячейки, числа или выражения в скобках
+    ?factor: NUMBER          -> number
+           | NAME            -> cell
            | "(" expr ")"
 
-    function_call: NAME "(" [ expr ("," expr)* ] ")"
+    // Правила для операций
+    add: expr "+" term  -> add_op
+    sub: expr "-" term  -> sub_op
+    mul: term "*" factor -> mul_op
+    div: term "/" factor -> div_op
 
+    // Разбор функций с несколькими аргументами
+    function_call: NAME "(" [ expr ("," expr)* ] ")" -> function_call
+
+    // Разбор ячеек и ссылок
     cell_ref: SHEET_NAME "!" CELL   -> sheet_cell
             | CELL                  -> cell
 """
@@ -49,88 +56,75 @@ EXCEL_GRAMMAR = r"""
 
 
 
-@v_args(inline=True)
+
+# Инициализация парсера Lark с заданной грамматикой и алгоритмом обработки ошибок
+# Мы будем использовать 'lalr' для парсинга и 'contextual' лексер для лучшей работы с контекстом
+parser = Lark(EXCEL_GRAMMAR, parser='lalr', lexer='contextual')
+
+
+@v_args(inline=True)  # Включение inline для упрощения возвращаемых значений
 class ToAST(Transformer):
     """
-    Класс ToAST отвечает за преобразование дерева разбора (Parse Tree) Lark
-    в наше пользовательское AST на основе узлов-объектов: ConstantNode, CellNode,
-    FunctionNode и BinaryOpNode.
+    Класс ToAST преобразует дерево разбора (Parse Tree) в наше собственное AST (объектное представление),
+    которое состоит из различных узлов: ConstantNode, CellNode, FunctionNode, BinaryOpNode.
     """
-    # Импорт стандартных операторных функций из модуля operator
-    # add, sub, mul и div используются автоматически при совпадении правил Lark
+
+    # Для операторов используем стандартные операторы Python
     from operator import add, sub, mul, truediv as div
 
     def number(self, token):
         """
-        Метод обрабатывает лексему NUMBER из грамматики.
-        token: токен, содержащий строку с числом (например, "3.14").
-        Возвращает объект ConstantNode с числовым значением.
+        Преобразует лексему NUMBER (число) в объект ConstantNode.
         """
-        # Конвертируем строку токена в float и создаём узел константы
+        # Конвертируем строковое значение в число (например, "3" в 3.0)
         return ConstantNode(float(token))
 
     def cell(self, token):
         """
-        Метод обрабатывает локальную ссылку на ячейку без имени листа,
-        например A1 или B2:C3.
-        token.value — строка вида "A1".
-        Возвращает объект CellNode.
+        Преобразует ссылку на ячейку (например, "A1") в объект CellNode.
         """
-        # Создаём узел, который при eval достанет значение по ключу token.value
-        return CellNode(token.value)
+        return CellNode(token.value)  # Используем значение токена (адрес ячейки) для создания узла
 
     def sheet_cell(self, sheet, cell):
         """
-        Метод обрабатывает межлистовую ссылку на ячейку,
-        например Sheet1!A1 или Sheet2!B2:C3.
-        sheet.value — имя листа, cell.value — адрес ячейки или диапазона.
-        Возвращает объект CellNode с полным адресом.
+        Преобразует межлистовую ссылку (например, "Sheet1!A1") в объект CellNode с полным адресом.
         """
-        # Объединяем имя листа и адрес ячейки в формате "Sheet!Cell"
-        full_ref = f"{sheet.value}!{cell.value}"
+        full_ref = f"{sheet.value}!{cell.value}"  # Формируем полный адрес: "Sheet1!A1"
         return CellNode(full_ref)
 
     def function_call(self, name, *args):
         """
-         Вызов функции:
-           - name.value: строка с именем (например, "SUM")
-           - args: распакованные дочерние узлы (ConstantNode, CellNode и т.д.)
+        Преобразует вызов функции (например, SUM(A1, B1)) в объект FunctionNode.
         """
-        # name.value.upper() — приводим к верхнему регистру,
-        # чтобы ключ excel_funcs совпадал
-
+        # Преобразуем имя функции в верхний регистр и создаем объект FunctionNode с аргументами
         return FunctionNode(name.value.upper(), list(args))
 
-
+    # Операторы: создание бинарных узлов для операций
     def add(self, a, b):
         """
-        Правило для оператора сложения '+'.
-        При совпадении создаёт узел BinaryOpNode('+', left, right).
-        a, b — дочерние узлы-операнды (уже преобразованные в FormulaNode).
+        Создает узел для операции сложения "+"
         """
         return BinaryOpNode('+', a, b)
 
     def sub(self, a, b):
         """
-        Правило для оператора вычитания '-'.
+        Создает узел для операции вычитания "-"
         """
         return BinaryOpNode('-', a, b)
 
     def mul(self, a, b):
         """
-        Правило для оператора умножения '*'.
+        Создает узел для операции умножения "*"
         """
         return BinaryOpNode('*', a, b)
 
     def div(self, a, b):
         """
-        Правило для оператора деления '/'.
+        Создает узел для операции деления "/"
         """
         return BinaryOpNode('/', a, b)
-    
-    def start(self, children):
-        return children[0]
-    
+
+    # Методы для операций сравнения (например, A1 > 0)
     def gt(self, a, b):
         return BinaryOpNode('>', a, b)
 
@@ -149,48 +143,36 @@ class ToAST(Transformer):
     def ne(self, a, b):
         return BinaryOpNode('<>', a, b)
 
-
-
-
-
-
-# ----------------------------------------------------------------------------
-# Создание парсера и обёртки для преобразования строковых формул
-# ----------------------------------------------------------------------------
-
-# Инициализируем Lark-парсер, передав в него нашу грамматику EXCEL_GRAMMAR и алгоритм lalr
-#parser = Lark(EXCEL_GRAMMAR, parser='lalr')
-parser = Lark(EXCEL_GRAMMAR, parser='lalr', lexer='contextual')
-
-
-
+    def start(self, children):
+        """
+        Вспомогательный метод для начала парсинга (первый узел дерева).
+        """
+        return children[0]
 
 
 def parse_formula(formula: str) -> FormulaNode:
     """
-    Главная функция парсинга формулы:
+    Главная функция для парсинга формулы:
       1. Убирает ведущий символ '=' (как в Excel).
       2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
-      3. Преобразует Parse Tree в наш AST (набор объектов FormulaNode).
+      3. Преобразует Parse Tree в наш AST (объект FormulaNode).
 
     Параметры:
-    - formula: строка формулы, например "=SUM(A1,B2)+IF(C3>0,D4,E5)".
-
+    - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
     Возвращает:
     - Экземпляр FormulaNode (корневой узел AST).
     """
-    # 1) Удаляем префикс '=' если он есть
-    text = formula.lstrip('=')  # 'SUM(A1,B2)+IF(C3>0,D4,E5)'
+    # 1) Убираем префикс '=' если он есть
+    text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
 
-    # 2) Лексико-синтаксический анализ: строим дерево разбора
-    #    Lark выберет правильные правила грамматики EXCEL_GRAMMAR
+    # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
     try:
         tree = parser.parse(text)
     except UnexpectedInput as e:
         raise SyntaxError(f"Invalid formula syntax: {e}") from e
 
-    # 3) Преобразуем Parse Tree в удобную объектную модель AST
-    #    ToAST — наш класс-Transformer, который создаёт узлы FormulaNode
+    # 3) Преобразуем Parse Tree в объектное представление (AST) с помощью ToAST
     ast = ToAST().transform(tree)
 
     # Возвращаем корень AST для последующего вычисления

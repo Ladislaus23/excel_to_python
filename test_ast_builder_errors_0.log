@@ -1,0 +1,1329 @@
+============================= test session starts =============================
+platform win32 -- Python 3.9.5, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\pc\practicum\practicum_env\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\pc\practicum\excel_to_python
+plugins: anyio-3.7.1
+collecting ... collected 13 items
+
+tests/test_ast_builder.py::test_parse_and_evaluate[=1+2-context0-3] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=5-3-context1-2] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=4*2-context2-8] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=8/2-context3-4] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=1+2*3-context4-7] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=(1+2)*3-context5-9] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=A1+3-context6-7] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=A1+B1-context7-7] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=SUM(1,2,3)-context8-6] PASSED
+tests/test_ast_builder.py::test_parse_and_evaluate[=SUM(A1,B1)-context9-3] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=IF(A1>0, 10, 20)-context10-10] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=IF(A1>0, 10, 20)-context11-20] FAILED
+tests/test_ast_builder.py::test_parse_and_evaluate[=Sheet1!A1+Sheet2!B2-context12-7] FAILED
+
+================================== FAILURES ===================================
+__________________ test_parse_and_evaluate[=1+2-context0-3] ___________________
+
+formula = '=1+2', context = {}, expected = 3
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('add_term', [<src.evaluator.ConstantNode object at 0x000001D8A5064130>, <src.evaluator.ConstantNode object at 0x000001D8A50646A0>]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+__________________ test_parse_and_evaluate[=5-3-context1-2] ___________________
+
+formula = '=5-3', context = {}, expected = 2
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('sub_term', [<src.evaluator.ConstantNode object at 0x000001D8A5049820>, <src.evaluator.ConstantNode object at 0x000001D8A5049880>]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+__________________ test_parse_and_evaluate[=4*2-context2-8] ___________________
+
+formula = '=4*2', context = {}, expected = 8
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('mul_term', [<src.evaluator.ConstantNode object at 0x000001D8A5067520>, <src.evaluator.ConstantNode object at 0x000001D8A5067E50>]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+__________________ test_parse_and_evaluate[=8/2-context3-4] ___________________
+
+formula = '=8/2', context = {}, expected = 4
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('div_term', [<src.evaluator.ConstantNode object at 0x000001D8A503DC40>, <src.evaluator.ConstantNode object at 0x000001D8A505F9A0>]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+_________________ test_parse_and_evaluate[=1+2*3-context4-7] __________________
+
+formula = '=1+2*3', context = {}, expected = 7
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('add_term', [<src.evaluator.ConstantNode object at 0x000001D8A5071370>, Tree('mul_term', [<src.evaluator.ConstantNode object at 0x000001D8A5071730>, <src.evaluator.ConstantNode object at 0x000001D8A50714F0>])]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+________________ test_parse_and_evaluate[=(1+2)*3-context5-9] _________________
+
+formula = '=(1+2)*3', context = {}, expected = 9
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+        node = parse_formula(formula)
+        # Проверяем, что вернулся корневой узел AST
+        from src.evaluator import FormulaNode
+>       assert isinstance(node, FormulaNode)
+E       AssertionError: assert False
+E        +  where False = isinstance(Tree('mul_term', [Tree('add_term', [<src.evaluator.ConstantNode object at 0x000001D8A50492E0>, <src.evaluator.ConstantNode object at 0x000001D8A5049310>]), <src.evaluator.ConstantNode object at 0x000001D8A5049850>]), <class 'src.evaluator.FormulaNode'>)
+
+tests\test_ast_builder.py:35: AssertionError
+__________________ test_parse_and_evaluate[=A1+3-context6-7] __________________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A5141740>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5141900>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+>               yield lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:478: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A5141740>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5141900>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '+' in the current parser context, at line 1 col 3
+E               
+E               A1+3
+E                 ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=A1+3'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A5141740>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5141900>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+                token = self.root_lexer.next_token(lexer_state, parser_state)
+>               raise UnexpectedToken(token, e.allowed, state=parser_state, token_history=[last_token], terminals_by_name=self.root_lexer.terminals_by_name)
+E               lark.exceptions.UnexpectedToken: Unexpected token Token('PLUS', '+') at line 1, column 3.
+E               Expected one of: 
+E               	* LPAR
+E               Previous tokens: [Token('NAME', 'A1')]
+
+..\practicum_env\lib\site-packages\lark\lexer.py:487: UnexpectedToken
+
+The above exception was the direct cause of the following exception:
+
+formula = '=A1+3', context = {'A1': 4}, expected = 7
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=A1+3'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: Unexpected token Token('PLUS', '+') at line 1, column 3.
+E           Expected one of: 
+E           	* LPAR
+E           Previous tokens: [Token('NAME', 'A1')]
+
+src\ast_builder.py:172: SyntaxError
+_________________ test_parse_and_evaluate[=A1+B1-context7-7] __________________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A52AA980>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A52AAF40>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+>               yield lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:478: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A52AA980>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A52AAF40>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '+' in the current parser context, at line 1 col 3
+E               
+E               A1+B1
+E                 ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=A1+B1'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A52AA980>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A52AAF40>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+                token = self.root_lexer.next_token(lexer_state, parser_state)
+>               raise UnexpectedToken(token, e.allowed, state=parser_state, token_history=[last_token], terminals_by_name=self.root_lexer.terminals_by_name)
+E               lark.exceptions.UnexpectedToken: Unexpected token Token('PLUS', '+') at line 1, column 3.
+E               Expected one of: 
+E               	* LPAR
+E               Previous tokens: [Token('NAME', 'A1')]
+
+..\practicum_env\lib\site-packages\lark\lexer.py:487: UnexpectedToken
+
+The above exception was the direct cause of the following exception:
+
+formula = '=A1+B1', context = {'A1': 2, 'B1': 5}, expected = 7
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=A1+B1'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: Unexpected token Token('PLUS', '+') at line 1, column 3.
+E           Expected one of: 
+E           	* LPAR
+E           Previous tokens: [Token('NAME', 'A1')]
+
+src\ast_builder.py:172: SyntaxError
+_______________ test_parse_and_evaluate[=SUM(A1,B1)-context9-3] _______________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A532F540>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A532FEC0>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+>               yield lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:478: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A532F540>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A532FEC0>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches ',' in the current parser context, at line 1 col 7
+E               
+E               SUM(A1,B1)
+E                     ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=SUM(A1,B1)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A532F540>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A532FEC0>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+                token = self.root_lexer.next_token(lexer_state, parser_state)
+>               raise UnexpectedToken(token, e.allowed, state=parser_state, token_history=[last_token], terminals_by_name=self.root_lexer.terminals_by_name)
+E               lark.exceptions.UnexpectedToken: Unexpected token Token('COMMA', ',') at line 1, column 7.
+E               Expected one of: 
+E               	* LPAR
+E               Previous tokens: [Token('NAME', 'A1')]
+
+..\practicum_env\lib\site-packages\lark\lexer.py:487: UnexpectedToken
+
+The above exception was the direct cause of the following exception:
+
+formula = '=SUM(A1,B1)', context = {'A1': 1, 'B1': 2}, expected = 3
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=SUM(A1,B1)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: Unexpected token Token('COMMA', ',') at line 1, column 7.
+E           Expected one of: 
+E           	* LPAR
+E           Previous tokens: [Token('NAME', 'A1')]
+
+src\ast_builder.py:172: SyntaxError
+___________ test_parse_and_evaluate[=IF(A1>0, 10, 20)-context10-10] ___________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A530AC80>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A530AE00>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+>               token = self.root_lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504A460>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A530AC80>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A530AE00>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '>' in the current parser context, at line 1 col 6
+E               
+E               IF(A1>0, 10, 20)
+E                    ^
+E               Expected one of: 
+E               	* LPAR
+E               	* SHEET_NAME
+E               	* NAME
+E               	* MINUS
+E               	* SLASH
+E               	* STAR
+E               	* NUMBER
+E               	* BANG
+E               	* COMMA
+E               	* CELL
+E               	* RPAR
+E               	* PLUS
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=IF(A1>0, 10, 20)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+..\practicum_env\lib\site-packages\lark\lexer.py:489: in lex
+    raise e  # Raise the original UnexpectedCharacters. The root lexer raises it with the wrong expected set.
+..\practicum_env\lib\site-packages\lark\lexer.py:478: in lex
+    yield lexer.next_token(lexer_state, parser_state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A530AC80>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A530AE00>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '>' in the current parser context, at line 1 col 6
+E               
+E               IF(A1>0, 10, 20)
+E                    ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+The above exception was the direct cause of the following exception:
+
+formula = '=IF(A1>0, 10, 20)', context = {'A1': 5}, expected = 10
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=IF(A1>0, 10, 20)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: No terminal matches '>' in the current parser context, at line 1 col 6
+E           
+E           IF(A1>0, 10, 20)
+E                ^
+E           Expected one of: 
+E           	* LPAR
+E           
+E           Previous tokens: Token('NAME', 'A1')
+
+src\ast_builder.py:172: SyntaxError
+___________ test_parse_and_evaluate[=IF(A1>0, 10, 20)-context11-20] ___________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A5237A40>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5237B40>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+>               token = self.root_lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504A460>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A5237A40>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5237B40>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '>' in the current parser context, at line 1 col 6
+E               
+E               IF(A1>0, 10, 20)
+E                    ^
+E               Expected one of: 
+E               	* LPAR
+E               	* SHEET_NAME
+E               	* NAME
+E               	* MINUS
+E               	* SLASH
+E               	* STAR
+E               	* NUMBER
+E               	* BANG
+E               	* COMMA
+E               	* CELL
+E               	* RPAR
+E               	* PLUS
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=IF(A1>0, 10, 20)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+..\practicum_env\lib\site-packages\lark\lexer.py:489: in lex
+    raise e  # Raise the original UnexpectedCharacters. The root lexer raises it with the wrong expected set.
+..\practicum_env\lib\site-packages\lark\lexer.py:478: in lex
+    yield lexer.next_token(lexer_state, parser_state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A5237A40>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A5237B40>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '>' in the current parser context, at line 1 col 6
+E               
+E               IF(A1>0, 10, 20)
+E                    ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'A1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+The above exception was the direct cause of the following exception:
+
+formula = '=IF(A1>0, 10, 20)', context = {'A1': -1}, expected = 20
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=IF(A1>0, 10, 20)'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: No terminal matches '>' in the current parser context, at line 1 col 6
+E           
+E           IF(A1>0, 10, 20)
+E                ^
+E           Expected one of: 
+E           	* LPAR
+E           
+E           Previous tokens: Token('NAME', 'A1')
+
+src\ast_builder.py:172: SyntaxError
+__________ test_parse_and_evaluate[=Sheet1!A1+Sheet2!B2-context12-7] __________
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A531F800>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A531FA40>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+>               yield lexer.next_token(lexer_state, parser_state)
+
+..\practicum_env\lib\site-packages\lark\lexer.py:478: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.TraditionalLexer object at 0x000001D8A504AEE0>
+lex_state = <lark.lexer.LexerState object at 0x000001D8A531F800>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A531FA40>
+
+    def next_token(self, lex_state, parser_state=None):
+        line_ctr = lex_state.line_ctr
+        while line_ctr.char_pos < len(lex_state.text):
+            res = self.match(lex_state.text, line_ctr.char_pos)
+            if not res:
+                allowed = self.scanner.allowed_types - self.ignore_types
+                if not allowed:
+                    allowed = {"<END-OF-FILE>"}
+>               raise UnexpectedCharacters(lex_state.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
+E               lark.exceptions.UnexpectedCharacters: No terminal matches '!' in the current parser context, at line 1 col 7
+E               
+E               Sheet1!A1+Sheet2!B2
+E                     ^
+E               Expected one of: 
+E               	* LPAR
+E               
+E               Previous tokens: Token('NAME', 'Sheet1')
+
+..\practicum_env\lib\site-packages\lark\lexer.py:398: UnexpectedCharacters
+
+During handling of the above exception, another exception occurred:
+
+formula = '=Sheet1!A1+Sheet2!B2'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+>           tree = parser.parse(text)
+
+src\ast_builder.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\practicum_env\lib\site-packages\lark\lark.py:581: in parse
+    return self.parser.parse(text, start=start, on_error=on_error)
+..\practicum_env\lib\site-packages\lark\parser_frontends.py:106: in parse
+    return self.parser.parse(stream, chosen_start, **kw)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:41: in parse
+    return self.parser.parse(lexer, start)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:171: in parse
+    return self.parse_from_state(parser_state)
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:188: in parse_from_state
+    raise e
+..\practicum_env\lib\site-packages\lark\parsers\lalr_parser.py:178: in parse_from_state
+    for token in state.lexer.lex(state):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <lark.lexer.ContextualLexer object at 0x000001D8A5065910>
+lexer_state = <lark.lexer.LexerState object at 0x000001D8A531F800>
+parser_state = <lark.parsers.lalr_parser.ParserState object at 0x000001D8A531FA40>
+
+    def lex(self, lexer_state, parser_state):
+        try:
+            while True:
+                lexer = self.lexers[parser_state.position]
+                yield lexer.next_token(lexer_state, parser_state)
+        except EOFError:
+            pass
+        except UnexpectedCharacters as e:
+            # In the contextual lexer, UnexpectedCharacters can mean that the terminal is defined, but not in the current context.
+            # This tests the input against the global context, to provide a nicer error.
+            try:
+                last_token = lexer_state.last_token  # Save last_token. Calling root_lexer.next_token will change this to the wrong token
+                token = self.root_lexer.next_token(lexer_state, parser_state)
+>               raise UnexpectedToken(token, e.allowed, state=parser_state, token_history=[last_token], terminals_by_name=self.root_lexer.terminals_by_name)
+E               lark.exceptions.UnexpectedToken: Unexpected token Token('BANG', '!') at line 1, column 7.
+E               Expected one of: 
+E               	* LPAR
+E               Previous tokens: [Token('NAME', 'Sheet1')]
+
+..\practicum_env\lib\site-packages\lark\lexer.py:487: UnexpectedToken
+
+The above exception was the direct cause of the following exception:
+
+formula = '=Sheet1!A1+Sheet2!B2', context = {'Sheet1!A1': 3, 'Sheet2!B2': 4}
+expected = 7
+
+    @pytest.mark.parametrize("formula, context, expected", [
+        # Простая арифметика
+        ("=1+2", {}, 3),
+        ("=5-3", {}, 2),
+        ("=4*2", {}, 8),
+        ("=8/2", {}, 4),
+    
+        # Скобки и приоритеты
+        ("=1+2*3", {}, 7),
+        ("=(1+2)*3", {}, 9),
+    
+        # Константы и ссылки на ячейки
+        ("=A1+3", {"A1": 4}, 7),
+        ("=A1+B1", {"A1": 2, "B1": 5}, 7),
+    
+        # Функции SUM и IF
+        ("=SUM(1,2,3)", {}, 6),
+        ("=SUM(A1,B1)", {"A1": 1, "B1": 2}, 3),
+        ("=IF(A1>0, 10, 20)", {"A1": 5}, 10),
+        ("=IF(A1>0, 10, 20)", {"A1": -1}, 20),
+    
+        # Межлистовые ссылки
+        ("=Sheet1!A1+Sheet2!B2", {"Sheet1!A1": 3, "Sheet2!B2": 4}, 7),
+    ])
+    def test_parse_and_evaluate(formula, context, expected):
+>       node = parse_formula(formula)
+
+tests\test_ast_builder.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+formula = '=Sheet1!A1+Sheet2!B2'
+
+    def parse_formula(formula: str) -> FormulaNode:
+        """
+        Главная функция для парсинга формулы:
+          1. Убирает ведущий символ '=' (как в Excel).
+          2. Пропускает оставшийся текст через Lark-парсер, получая Parse Tree.
+          3. Преобразует Parse Tree в наш AST (объект FormulaNode).
+    
+        Параметры:
+        - formula: строка формулы (например "=SUM(A1,B2)+IF(C3>0,D4,E5)").
+    
+        Возвращает:
+        - Экземпляр FormulaNode (корневой узел AST).
+        """
+        # 1) Убираем префикс '=' если он есть
+        text = formula.lstrip('=')  # Например, из "=SUM(A1,B2)" получится "SUM(A1,B2)"
+    
+        # 2) Лексико-синтаксический анализ: строим дерево разбора с помощью Lark
+        try:
+            tree = parser.parse(text)
+        except UnexpectedInput as e:
+>           raise SyntaxError(f"Invalid formula syntax: {e}") from e
+E           SyntaxError: Invalid formula syntax: Unexpected token Token('BANG', '!') at line 1, column 7.
+E           Expected one of: 
+E           	* LPAR
+E           Previous tokens: [Token('NAME', 'Sheet1')]
+
+src\ast_builder.py:172: SyntaxError
+=========================== short test summary info ===========================
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=1+2-context0-3] - ...
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=5-3-context1-2] - ...
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=4*2-context2-8] - ...
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=8/2-context3-4] - ...
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=1+2*3-context4-7]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=(1+2)*3-context5-9]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=A1+3-context6-7]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=A1+B1-context7-7]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=SUM(A1,B1)-context9-3]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=IF(A1>0, 10, 20)-context10-10]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=IF(A1>0, 10, 20)-context11-20]
+FAILED tests/test_ast_builder.py::test_parse_and_evaluate[=Sheet1!A1+Sheet2!B2-context12-7]
+======================== 12 failed, 1 passed in 0.53s =========================
