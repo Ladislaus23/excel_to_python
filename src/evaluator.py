@@ -1,3 +1,5 @@
+#evaluator.py
+
 from typing import Any, Dict, Tuple, List
 
 # ----------------------------------------------------------------------------
@@ -75,20 +77,23 @@ class BinaryOpNode(FormulaNode):
         self.left = left
         self.right = right
 
-    def eval(self, context: Dict[str, Any]) -> Any:
-        # Сначала вычисляем левый и правый операнды
+    def eval(self, context):
         l = self.left.eval(context)
         r = self.right.eval(context)
-        # В зависимости от оператора применяем нужную арифметику
-        if self.op == '+':
-            return l + r
-        if self.op == '-':
-            return l - r
-        if self.op == '*':
-            return l * r
-        if self.op == '/':
-            return l / r
-        # В случае неподдерживаемого оператора кидаем ошибку
+
+        if self.op == '+':   return l + r
+        if self.op == '-':   return l - r
+        if self.op == '*':   return l * r
+        if self.op == '/':   return l / r
+
+        # сравнения:
+        if self.op == '>':   return l > r
+        if self.op == '<':   return l < r
+        if self.op == '>=':  return l >= r
+        if self.op == '<=':  return l <= r
+        if self.op == '=':   return l == r
+        if self.op == '<>':  return l != r
+
         raise ValueError(f"Unsupported operator {self.op}")
 
 

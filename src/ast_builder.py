@@ -1,33 +1,56 @@
+#ast_builder.py
+
 from lark import Lark, Transformer, v_args
 from src.evaluator import ConstantNode, CellNode, FunctionNode, BinaryOpNode, FormulaNode
+from lark.exceptions import UnexpectedInput
 
 
 
 # Определение грамматики для Excel-подобных формул
-EXCEL_GRAMMAR = r"""CELL: /[A-Za-z]+\d+(:[A-Za-z]+\d+)?/
-SHEET_NAME: /[A-Za-z_]\w+/
-NAME: /[A-Za-z_]\w*/
-?start: expr
-?expr: expr "+" term   -> add
-     | expr "-" term   -> sub
-     | term
-?term: term "*" factor -> mul
-     | term "/" factor -> div
-     | factor
-?factor: cell_ref
-       | function_call
-       | NUMBER         -> number
-       | "(" expr ")"
-function_call: NAME "(" [args] ")"
-args: expr ("," expr)*
-cell_ref: SHEET_NAME "!" CELL -> sheet_cell
-        | CELL                -> cell
-%import common.NUMBER  -> NUMBER
-%import common.WS_INLINE
-%ignore WS_INLINE
-"""
+EXCEL_GRAMMAR = r"""
+    // Однострочные C++-комментарии
+    COMMENT: /\/\/[^\n]*/
+    %ignore COMMENT
 
-#%import common.CNAME   -> NAME
+    // --- Терминалы ---
+    // Адрес ячейки или диапазона: A1, B2:C3 и т.п.
+    CELL:       /[A-Za-z]+\d+(:[A-Za-z]+\d+)?/
+    // Имя листа: Sheet1, My_Sheet и т.п.
+    SHEET_NAME: /[A-Za-z_]\w+/
+
+    // Импортим общие токены
+    %import common.CNAME      -> NAME
+    %import common.NUMBER     -> NUMBER
+    %import common.WS_INLINE
+    %ignore WS_INLINE
+
+    // Уровень выражений: сравнения, арифметика и т. д.
+    ?start: expr
+
+    ?expr: expr ">" term    -> gt
+         | expr "<" term    -> lt
+         | expr ">=" term   -> ge
+         | expr "<=" term   -> le
+         | expr "=" term    -> eq
+         | expr "<>" term   -> ne
+         | expr "+" term    -> add
+         | expr "-" term    -> sub
+         | term
+
+    ?term: term "*" factor -> mul
+         | term "/" factor -> div
+         | factor
+
+    ?factor: cell_ref
+           | function_call
+           | NUMBER         -> number
+           | "(" expr ")"
+
+    function_call: NAME "(" [ expr ("," expr)* ] ")"
+
+    cell_ref: SHEET_NAME "!" CELL   -> sheet_cell
+            | CELL                  -> cell
+"""
 
 
 
@@ -75,28 +98,14 @@ class ToAST(Transformer):
 
     def function_call(self, name, *args):
         """
-        Обрабатывает узел вызова функции:
-        - name: Token с именем функции (например, 'SUM')
-        - *args: один или несколько аргументов, которые могут быть
-        либо списками (если их обёрнуло правило args), либо
-        уже преобразованными AST-узлами (ConstantNode, CellNode, и т.д.)
+         Вызов функции:
+           - name.value: строка с именем (например, "SUM")
+           - args: распакованные дочерние узлы (ConstantNode, CellNode и т.д.)
         """
-        flat = []  # Здесь будем накапливать "расплющенный" список аргументов
-        
-        # Проходим по всем полученным аргументам
-        for a in args:
-            # Если аргумент — это список (правило args вернуло список дочерних узлов),
-            # то разворачиваем его в общий список flat
-            if isinstance(a, list):
-                flat.extend(a)
-            else:
-                # Иначе просто добавляем одиночный узел
-                flat.append(a)
-        
-        # name.value.upper() — приводим имя функции к верхнему регистру,
-        # чтобы ключ словаря excel_funcs находился без учёта регистра.
-        # flat — это список AST-узлов аргументов, готовых к вычислению.
-        return FunctionNode(name.value.upper(), flat)
+        # name.value.upper() — приводим к верхнему регистру,
+        # чтобы ключ excel_funcs совпадал
+
+        return FunctionNode(name.value.upper(), list(args))
 
 
     def add(self, a, b):
@@ -128,13 +137,23 @@ class ToAST(Transformer):
     def start(self, children):
         return children[0]
     
-    def args(self, children):
-        """
-        Правило `args: expr ("," expr)*`.
-        Здесь дочерние элементы уже распакованы как отдельные аргументы,
-        поэтому собираем их обратно в список.
-        """
-        return list(children)
+    def gt(self, a, b):
+        return BinaryOpNode('>', a, b)
+
+    def lt(self, a, b):
+        return BinaryOpNode('<', a, b)
+
+    def ge(self, a, b):
+        return BinaryOpNode('>=', a, b)
+
+    def le(self, a, b):
+        return BinaryOpNode('<=', a, b)
+
+    def eq(self, a, b):
+        return BinaryOpNode('=', a, b)
+
+    def ne(self, a, b):
+        return BinaryOpNode('<>', a, b)
 
 
 
@@ -147,7 +166,8 @@ class ToAST(Transformer):
 
 # Инициализируем Lark-парсер, передав в него нашу грамматику EXCEL_GRAMMAR и алгоритм lalr
 #parser = Lark(EXCEL_GRAMMAR, parser='lalr')
-parser = Lark(EXCEL_GRAMMAR, parser='lalr', lexer='standard')
+parser = Lark(EXCEL_GRAMMAR, parser='lalr', lexer='contextual')
+
 
 
 
@@ -170,7 +190,10 @@ def parse_formula(formula: str) -> FormulaNode:
 
     # 2) Лексико-синтаксический анализ: строим дерево разбора
     #    Lark выберет правильные правила грамматики EXCEL_GRAMMAR
-    tree = parser.parse(text)
+    try:
+        tree = parser.parse(text)
+    except UnexpectedInput as e:
+        raise SyntaxError(f"Invalid formula syntax: {e}") from e
 
     # 3) Преобразуем Parse Tree в удобную объектную модель AST
     #    ToAST — наш класс-Transformer, который создаёт узлы FormulaNode
